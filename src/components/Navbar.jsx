@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 export default function Navbar() {
@@ -25,6 +25,24 @@ export default function Navbar() {
           )}
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            to="/profile"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            <svg
+              className="h-4 w-4 text-slate-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            My Profile
+          </Link>
           <span className="hidden text-sm text-slate-500 sm:inline">{user?.email}</span>
           <button
             onClick={handleSignOut}
