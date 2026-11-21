@@ -21,7 +21,7 @@ export default function Login() {
 
   // End the cinematic boot sequence after 3 seconds.
   useEffect(() => {
-    const t = setTimeout(() => setIsBooting(false), 3000)
+    const t = setTimeout(() => setIsBooting(false), 10000)
     return () => clearTimeout(t)
   }, [])
 
