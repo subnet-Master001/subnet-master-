@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar.jsx'
+import RankBadge from '../components/RankBadge.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { supabase } from '../supabaseClient.js'
 
@@ -31,6 +32,7 @@ export default function Profile() {
   const [avatarPreview, setAvatarPreview] = useState(null) // object URL preview
   const [message, setMessage] = useState(null)
   const [error, setError] = useState(null)
+  const [usedToday, setUsedToday] = useState(0)
 
   useEffect(() => {
     let active = true
@@ -42,7 +44,7 @@ export default function Profile() {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, email, codename, school, course, avatar_url')
+          .select('id, email, codename, school, course, avatar_url, questions_used_today')
           .eq('id', user.id)
           .maybeSingle()
         if (active && !error && data) {
@@ -50,6 +52,7 @@ export default function Profile() {
           setSchool(data.school ?? '')
           setCourse(data.course ?? '')
           setAvatarUrl(data.avatar_url ?? null)
+          setUsedToday(data.questions_used_today ?? 0)
         }
       } catch {
         // best-effort load
@@ -182,6 +185,9 @@ export default function Profile() {
                     {codename || 'codename'}
                   </span>
                 </p>
+                <div className="mt-3">
+                  <RankBadge score={usedToday} />
+                </div>
               </div>
 
               {/* info rows */}
