@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/AuthContext.jsx'
 import { isSupabaseConfigured } from '../supabaseClient.js'
+import BootSequence from '../components/BootSequence.jsx'
 
 export default function Signup() {
   const { session, signUp } = useAuth()
@@ -13,10 +14,17 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [isBooting, setIsBooting] = useState(true)
 
   useEffect(() => {
     if (session) navigate('/dashboard', { replace: true })
   }, [session, navigate])
+
+  // End the cinematic boot sequence after 3 seconds.
+  useEffect(() => {
+    const t = setTimeout(() => setIsBooting(false), 3000)
+    return () => clearTimeout(t)
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -62,9 +70,27 @@ export default function Signup() {
         transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
       />
 
+      {/* cinematic boot sequence */}
+      <AnimatePresence>
+        {isBooting && (
+          <motion.div
+            key="boot-screen"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950 px-6"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeInOut' }}
+          >
+            <div className="mb-4 font-mono text-xs uppercase tracking-[0.3em] text-slate-600">
+              SUBNETMASTER // BOOT
+            </div>
+            <BootSequence />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: isBooting ? 0 : 1, y: isBooting ? 16 : 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className="relative z-10 w-full max-w-md"
       >
