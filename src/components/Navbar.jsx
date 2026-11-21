@@ -11,15 +11,15 @@ export default function Navbar() {
   }
 
   return (
-    <header className="border-b border-slate-200 bg-white">
+    <header className="border-b border-slate-800 bg-slate-950">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-sm font-bold text-white shadow-lg shadow-purple-500/30">
             S
           </span>
-          <span className="text-lg font-semibold text-slate-900">SubnetMaster</span>
+          <span className="text-lg font-semibold text-white">SubnetMaster</span>
           {profile?.is_pro && (
-            <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+            <span className="ml-1 rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-medium text-amber-300 ring-1 ring-amber-400/30">
               Pro
             </span>
           )}
@@ -28,10 +28,10 @@ export default function Navbar() {
           <Link
             to="/leaderboard"
             title="Leaderboard"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
           >
             <svg
-              className="h-4 w-4 text-slate-500"
+              className="h-4 w-4 text-slate-400"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -51,10 +51,10 @@ export default function Navbar() {
           <Link
             to="/profile"
             title="My Profile"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
           >
             <svg
-              className="h-4 w-4 text-slate-500"
+              className="h-4 w-4 text-slate-400"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -67,10 +67,10 @@ export default function Navbar() {
             </svg>
             <span className="hidden sm:inline">My Profile</span>
           </Link>
-          <span className="hidden text-sm text-slate-500 lg:inline">{user?.email}</span>
+          <span className="hidden text-sm text-slate-400 lg:inline">{user?.email}</span>
           <button
             onClick={handleSignOut}
-            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            className="rounded-lg border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800"
           >
             Sign out
           </button>

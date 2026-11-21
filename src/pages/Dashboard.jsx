@@ -148,9 +148,9 @@ export default function Dashboard() {
 
   if (profileLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="flex items-center gap-3 text-slate-500">
-          <span className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-950">
+        <div className="flex items-center gap-3 text-slate-400">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
           Loading…
         </div>
       </div>
@@ -158,25 +158,35 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="relative min-h-screen bg-slate-950">
+      {/* ambient top glow */}
+      <div
+        className="pointer-events-none fixed inset-x-0 top-0 h-72"
+        style={{
+          background:
+            'radial-gradient(ellipse at top, rgba(99,102,241,0.18), transparent 70%)',
+        }}
+      />
       <Navbar />
 
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <main className="relative mx-auto max-w-3xl px-4 py-8 sm:px-6">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Practice Arena</h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-white">Practice Arena</h1>
+            <p className="mt-1 text-sm text-slate-400">
               Given the IP address and CIDR, work out the{' '}
-              <span className="font-medium text-slate-700">network address</span>.
+              <span className="font-medium text-slate-200">network address</span>.
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-3 py-1 text-sm font-bold text-orange-600">
+            <span className="inline-flex items-center gap-1 rounded-full bg-orange-500/15 px-3 py-1 text-sm font-bold text-orange-300 ring-1 ring-orange-400/30">
               🔥 {streak} Streak
             </span>
             <span
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                isPro ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'
+              className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${
+                isPro
+                  ? 'bg-amber-500/15 text-amber-300 ring-amber-400/30'
+                  : 'bg-slate-800 text-slate-300 ring-slate-700'
               }`}
             >
               {isPro ? 'Pro · Unlimited' : `${usedToday} / ${DAILY_LIMIT} used today`}
@@ -187,40 +197,27 @@ export default function Dashboard() {
         {atLimit ? (
           <UpgradeCard upgrading={upgrading} error={upgradeError} onUpgrade={handleUpgrade} />
         ) : (
-          <div className="rounded-2xl border border-slate-200/50 bg-white/80 p-6 shadow-2xl backdrop-blur-md sm:p-8">
+          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-lg sm:p-8">
             {/* Question card — animates in (fade + slide up) on every new question */}
             <motion.div
               key={qid}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="relative mb-6 rounded-xl bg-slate-900 p-6 text-center"
+              className="relative mb-6 rounded-2xl border border-purple-500/40 bg-gradient-to-br from-slate-900 to-indigo-950/60 p-6 text-center shadow-[0_0_35px_-10px_rgba(168,85,247,0.55)]"
             >
-              {!submitted && (
-                <span
-                  className={`absolute right-3 top-3 rounded-full px-2 py-0.5 font-mono text-xs font-bold ${
-                    timeLeft <= 10
-                      ? 'animate-pulse bg-red-500/20 text-red-400'
-                      : timeLeft <= 20
-                      ? 'bg-amber-500/20 text-amber-400'
-                      : 'bg-slate-700/60 text-slate-300'
-                  }`}
-                >
-                  {timeLeft}s
-                </span>
-              )}
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Find the network address for
               </p>
               <p className="mt-2 font-mono text-3xl font-bold text-white sm:text-4xl">
                 {question.ip}
-                <span className="text-indigo-400">/{question.cidr}</span>
+                <span className="text-purple-400">/{question.cidr}</span>
               </p>
             </motion.div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="answer" className="mb-1 block text-sm font-medium text-slate-700">
+                <label htmlFor="answer" className="mb-1 block text-sm font-medium text-slate-300">
                   Network address
                 </label>
                 <input
@@ -230,15 +227,34 @@ export default function Dashboard() {
                   onChange={(e) => setAnswer(e.target.value)}
                   placeholder="e.g. 192.168.1.0"
                   autoComplete="off"
-                  className="w-full rounded-lg border border-purple-500/40 bg-slate-900 px-3 py-2.5 font-mono text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:shadow-[0_0_20px_rgba(168,85,247,0.45)]"
+                  className="w-full rounded-lg border border-purple-500/40 bg-slate-950 px-3 py-2.5 font-mono text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:shadow-[0_0_20px_rgba(168,85,247,0.45)]"
                 />
               </div>
-              <div className="flex gap-3">
+
+              {/* Game timer (circular, glowing) next to the action button */}
+              <div className="flex items-stretch gap-3">
+                {!submitted && (
+                  <div
+                    aria-label={`${timeLeft} seconds remaining`}
+                    className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border-2 font-mono ${
+                      timeLeft <= 10
+                        ? 'border-red-500 text-red-400 shadow-[0_0_18px_rgba(239,68,68,0.6)] animate-pulse'
+                        : timeLeft <= 20
+                        ? 'border-amber-400 text-amber-300 shadow-[0_0_16px_rgba(251,191,36,0.5)]'
+                        : 'border-purple-500 text-purple-300 shadow-[0_0_16px_rgba(168,85,247,0.5)]'
+                    }`}
+                  >
+                    <span className="text-lg font-bold leading-none">{timeLeft}</span>
+                    <span className="mt-0.5 text-[9px] font-semibold uppercase tracking-wider opacity-70">
+                      sec
+                    </span>
+                  </div>
+                )}
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.95 }}
                   onClick={submitted ? nextQuestion : handleSubmit}
-                  className="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 font-semibold text-white transition hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:ring-offset-2"
+                  className="flex h-14 flex-1 items-center justify-center rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-4 font-semibold text-white transition hover:from-indigo-500 hover:to-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-400/60 focus:ring-offset-2 focus:ring-offset-slate-900"
                 >
                   {submitted ? 'Next question' : 'Submit answer'}
                 </motion.button>
@@ -249,30 +265,32 @@ export default function Dashboard() {
             {submitted === true && result !== null && (
               <div className="mt-6">
                 {result.correct ? (
-                  <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-                    <p className="font-semibold text-green-800">✓ Correct!</p>
-                    <p className="mt-1 text-sm text-green-700">
+                  <div className="rounded-xl border border-green-500/30 bg-green-500/10 p-4">
+                    <p className="font-semibold text-green-300">✓ Correct!</p>
+                    <p className="mt-1 text-sm text-green-200/90">
                       Nice work. The network address is{' '}
                       <span className="font-mono font-semibold">{result.correctAnswer}</span>.
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-xl border border-red-200 bg-red-50 p-4">
-                    <p className="font-semibold text-red-800">✗ Incorrect</p>
-                    <p className="mt-1 text-sm text-red-700">
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4">
+                    <p className="font-semibold text-red-300">✗ Incorrect</p>
+                    <p className="mt-1 text-sm text-red-200/90">
                       The correct network address is{' '}
                       <span className="font-mono font-semibold">{result.correctAnswer}</span>.
                     </p>
 
-                    <div className="mt-4 rounded-lg border border-slate-100 bg-white p-4">
-                      <p className="mb-3 text-sm font-semibold text-slate-800">Step-by-step solution</p>
+                    <div className="mt-4 rounded-lg border border-slate-700/60 bg-slate-950/50 p-4">
+                      <p className="mb-3 text-sm font-semibold text-slate-200">
+                        Step-by-step solution
+                      </p>
                       <ol className="space-y-3">
                         {result.breakdown.steps.map((step, i) => (
                           <li key={i} className="text-sm">
-                            <span className="font-semibold text-slate-800">
+                            <span className="font-semibold text-slate-200">
                               {i + 1}. {step.title}
                             </span>
-                            <div className="mt-0.5 text-slate-600">{step.detail}</div>
+                            <div className="mt-0.5 text-slate-400">{step.detail}</div>
                           </li>
                         ))}
                       </ol>
@@ -284,7 +302,7 @@ export default function Dashboard() {
           </div>
         )}
 
-        <p className="mt-4 text-center text-xs text-slate-400">
+        <p className="mt-4 text-center text-xs text-slate-500">
           Signed in as {user?.email}
         </p>
       </main>
@@ -294,7 +312,7 @@ export default function Dashboard() {
 
 function UpgradeCard({ upgrading, error, onUpgrade }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-purple-200 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-900/80 shadow-2xl backdrop-blur-lg">
       <div className="bg-gradient-to-br from-purple-600 to-violet-600 px-6 py-8 text-center sm:px-10">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 text-3xl">
           ⭐
@@ -309,15 +327,15 @@ function UpgradeCard({ upgrading, error, onUpgrade }) {
         <button
           onClick={onUpgrade}
           disabled={upgrading}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 px-6 py-4 text-lg font-bold text-white shadow-lg transition hover:from-purple-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-purple-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:px-10"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 px-6 py-4 text-lg font-bold text-white shadow-lg transition hover:from-purple-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-purple-400/60 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:px-10"
         >
           {upgrading && (
             <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
           )}
           {upgrading ? 'Processing…' : 'Upgrade for ₦1,500/month'}
         </button>
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
-        <p className="mt-4 text-xs text-slate-400">Secure checkout powered by Paystack (demo).</p>
+        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+        <p className="mt-4 text-xs text-slate-500">Secure checkout powered by Paystack (demo).</p>
       </div>
     </div>
   )
