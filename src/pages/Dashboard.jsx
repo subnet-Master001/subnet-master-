@@ -159,14 +159,11 @@ export default function Dashboard() {
 
   return (
     <div className="relative min-h-screen bg-slate-950">
-      {/* ambient top glow */}
-      <div
-        className="pointer-events-none fixed inset-x-0 top-0 h-72"
-        style={{
-          background:
-            'radial-gradient(ellipse at top, rgba(99,102,241,0.18), transparent 70%)',
-        }}
-      />
+      {/* ambient neon glow circles behind the glass card */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 left-0 h-96 w-96 rounded-full bg-purple-600/20 blur-[120px]" />
+        <div className="absolute top-20 right-0 h-96 w-96 rounded-full bg-indigo-600/20 blur-[120px]" />
+      </div>
       <Navbar />
 
       <main className="relative mx-auto max-w-3xl px-4 py-8 sm:px-6">
@@ -197,14 +194,14 @@ export default function Dashboard() {
         {atLimit ? (
           <UpgradeCard upgrading={upgrading} error={upgradeError} onUpgrade={handleUpgrade} />
         ) : (
-          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/80 p-6 shadow-2xl backdrop-blur-lg sm:p-8">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-2xl sm:p-8">
             {/* Question card — animates in (fade + slide up) on every new question */}
             <motion.div
               key={qid}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="relative mb-6 rounded-2xl border border-purple-500/40 bg-gradient-to-br from-slate-900 to-indigo-950/60 p-6 text-center shadow-[0_0_35px_-10px_rgba(168,85,247,0.55)]"
+              className="relative mb-6 rounded-2xl border border-purple-500/40 bg-black/50 p-6 text-center shadow-[0_0_35px_-10px_rgba(168,85,247,0.55)] backdrop-blur-md"
             >
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Find the network address for
@@ -215,7 +212,7 @@ export default function Dashboard() {
               </p>
             </motion.div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="answer" className="mb-1 block text-sm font-medium text-slate-300">
                   Network address
@@ -227,7 +224,7 @@ export default function Dashboard() {
                   onChange={(e) => setAnswer(e.target.value)}
                   placeholder="e.g. 192.168.1.0"
                   autoComplete="off"
-                  className="w-full rounded-lg border border-purple-500/40 bg-slate-950 px-3 py-2.5 font-mono text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:shadow-[0_0_20px_rgba(168,85,247,0.45)]"
+                  className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2.5 font-mono text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 focus:shadow-[0_0_20px_rgba(168,85,247,0.45)]"
                 />
               </div>
 
@@ -236,9 +233,9 @@ export default function Dashboard() {
                 {!submitted && (
                   <div
                     aria-label={`${timeLeft} seconds remaining`}
-                    className={`flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border-2 font-mono ${
+                    className={`flex h-14 w-14 shrink-0 animate-breathe flex-col items-center justify-center rounded-full border-2 font-mono ${
                       timeLeft <= 10
-                        ? 'border-red-500 text-red-400 shadow-[0_0_18px_rgba(239,68,68,0.6)] animate-pulse'
+                        ? 'border-red-500 text-red-400 shadow-[0_0_18px_rgba(239,68,68,0.6)]'
                         : timeLeft <= 20
                         ? 'border-amber-400 text-amber-300 shadow-[0_0_16px_rgba(251,191,36,0.5)]'
                         : 'border-purple-500 text-purple-300 shadow-[0_0_16px_rgba(168,85,247,0.5)]'
