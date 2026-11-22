@@ -85,14 +85,10 @@ export default function Dashboard() {
     }
     // ─────────────────────────────────────────────────────────────────────
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        questions_used_today: newCount,
-        total_questions:      newTotalQ,
-        total_correct:        newTotalCorrect,
-      })
-      .eq('id', user.id)
+    // Use the server-side RPC so the client can never directly write
+    // protected columns (total_questions, total_correct, questions_used_today).
+    // The function runs as SECURITY DEFINER and trusts auth.uid() — not caller input.
+    const { error } = await supabase.rpc('increment_user_stats', { is_correct: isCorrect })
     if (!error) {
       setProfile((p) => p ? {
         ...p,
