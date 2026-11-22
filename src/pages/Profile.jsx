@@ -134,6 +134,16 @@ export default function Profile() {
   const displayAvatar = avatarPreview || avatarUrl
   const serial = `SM-${(user?.id ?? 'guest0000').slice(0, 8).toUpperCase()}`
 
+  // Format signup date as "NOV 2026" from the Supabase auth user object.
+  // user.created_at is an ISO-8601 string set by Supabase Auth at signup time.
+  const joinedLabel = (() => {
+    const raw = user?.created_at
+    if (!raw) return null
+    const d = new Date(raw)
+    if (isNaN(d.getTime())) return null
+    return d.toLocaleString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()
+  })()
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
@@ -185,43 +195,63 @@ export default function Profile() {
                     {codename || 'codename'}
                   </span>
                 </p>
-                <div className="mt-3">
+                <div className="mt-3 flex flex-col items-center gap-1">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-purple-300/60">
+                    Clearance Level
+                  </p>
                   <RankBadge score={usedToday} />
                 </div>
               </div>
 
               {/* info rows */}
-              <div className="mt-7 space-y-3">
-                <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-purple-300/70">
-                    School
-                  </p>
-                  <p className={`mt-0.5 text-sm ${school ? 'text-slate-100' : 'text-slate-500'}`}>
-                    {school || 'Not set'}
-                  </p>
+              <div className="mt-5 space-y-2">
+                {/* School + Course in a tighter 2-col grid to leave room for joined */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
+                    <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-purple-300/70">
+                      School
+                    </p>
+                    <p className={`mt-0.5 truncate text-sm ${school ? 'text-slate-100' : 'text-slate-500'}`}>
+                      {school || 'Not set'}
+                    </p>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
+                    <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-purple-300/70">
+                      Course
+                    </p>
+                    <p className={`mt-0.5 truncate text-sm ${course ? 'text-slate-100' : 'text-slate-500'}`}>
+                      {course || 'Not set'}
+                    </p>
+                  </div>
                 </div>
-                <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-purple-300/70">
-                    Course
-                  </p>
-                  <p className={`mt-0.5 text-sm ${course ? 'text-slate-100' : 'text-slate-500'}`}>
-                    {course || 'Not set'}
-                  </p>
-                </div>
+
+                {/* Member since */}
+                {joinedLabel && (
+                  <div className="rounded-xl bg-white/5 p-3 ring-1 ring-white/10">
+                    <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-purple-300/70">
+                      Member Since
+                    </p>
+                    <p className="mt-0.5 font-mono text-sm text-slate-100">{joinedLabel}</p>
+                  </div>
+                )}
               </div>
 
-              {/* fake barcode + serial */}
-              <div className="mt-6 border-t border-white/10 pt-4">
+              {/* barcode + footer metadata */}
+              <div className="mt-5 border-t border-white/10 pt-4">
                 <div
-                  className="h-10 w-full"
+                  aria-hidden="true"
+                  className="h-9 w-full opacity-80"
                   style={{
                     backgroundImage:
                       'repeating-linear-gradient(90deg, rgba(255,255,255,0.85) 0 2px, transparent 2px 4px, rgba(255,255,255,0.85) 4px 5px, transparent 5px 8px, rgba(255,255,255,0.85) 8px 11px, transparent 11px 13px, rgba(255,255,255,0.85) 13px 14px, transparent 14px 17px)',
                   }}
                 />
-                <div className="mt-2 flex items-center justify-between font-mono text-[10px] text-purple-200/70">
-                  <span>{serial}</span>
-                  <span>CCNA · v1.0</span>
+                <div className="mt-2 grid grid-cols-3 items-center gap-1 font-mono text-[10px] text-slate-400">
+                  <span className="truncate">ID: {serial}</span>
+                  <span className="text-center text-purple-300/50">CCNA · v1.0</span>
+                  <span className="truncate text-right">
+                    {joinedLabel ? `JOINED: ${joinedLabel}` : ''}
+                  </span>
                 </div>
               </div>
             </div>
