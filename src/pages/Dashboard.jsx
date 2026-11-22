@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from '../components/Navbar.jsx'
 import RankUpModal from '../components/RankUpModal.jsx'
+import RankBadge from '../components/RankBadge.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { supabase } from '../supabaseClient.js'
 import { getRank } from '../utils/ranks.js'
@@ -54,7 +55,7 @@ export default function Dashboard() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, email, is_pro, questions_used_today, last_active_date, total_questions, total_correct')
+        .select('id, email, is_pro, questions_used_today, last_active_date, total_questions, total_correct, codename, avatar_url')
         .eq('id', user.id)
         .maybeSingle()
       if (!error) setProfile(data)
@@ -167,58 +168,23 @@ export default function Dashboard() {
 
       <main className="relative mx-auto max-w-3xl px-4 py-8 sm:px-6">
 
-        {/* ── Page header ── */}
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Practice Arena</h1>
-            <p className="mt-1 text-sm text-slate-400">
-              Given the IP address and CIDR, work out the{' '}
-              <span className="font-medium text-slate-200">network address</span>.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-orange-500/15 px-3 py-1 text-sm font-bold text-orange-300 ring-1 ring-orange-400/30">
-              🔥 {streak} Streak
-            </span>
-            <span className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ${
-              isPro ? 'bg-amber-500/15 text-amber-300 ring-amber-400/30' : 'bg-slate-800 text-slate-300 ring-slate-700'
-            }`}>
-              {isPro ? 'Pro · Unlimited' : `${usedToday} / ${DAILY_LIMIT} used today`}
-            </span>
-          </div>
-        </div>
-
-        {/* ── Analytics cards ── */}
-        <AnimatePresence>
-          <motion.section
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: 'easeOut' }}
-            className="mb-6 grid grid-cols-3 gap-3 sm:gap-4"
-            aria-label="Your analytics"
-          >
-            <StatCard
-              icon="📊"
-              label="Questions"
-              value={usedToday}
-              sub="answered today"
-            />
-            <StatCard
-              icon="🔥"
-              label="Streak"
-              value={streak}
-              sub="in a row"
-              highlight={streak >= 5}
-            />
-            <StatCard
-              icon="🎯"
-              label="Accuracy"
-              value={accuracy === null ? '—' : `${accuracy}%`}
-              sub={totalQuestions === 0 ? 'all time' : `${totalCorrect}/${totalQuestions} correct`}
-              highlight={accuracy !== null && accuracy >= 80}
-            />
-          </motion.section>
-        </AnimatePresence>
+        {/* ── Player HUD ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="mb-6"
+        >
+          <PlayerHUD
+            profile={profile}
+            streak={streak}
+            accuracy={accuracy}
+            totalCorrect={totalCorrect}
+            totalQuestions={totalQuestions}
+            usedToday={usedToday}
+            isPro={isPro}
+          />
+        </motion.div>
 
         {/* ── Practice arena ── */}
         {atLimit ? (
@@ -329,23 +295,113 @@ export default function Dashboard() {
 }
 
 /* ─────────────────────────────────────────────────────────
-   Analytics stat card
+   Holographic Player HUD
 ───────────────────────────────────────────────────────── */
-function StatCard({ icon, label, value, sub, highlight = false }) {
+function PlayerHUD({ profile, streak, accuracy, totalCorrect, totalQuestions, usedToday, isPro }) {
+  const codename  = profile?.codename  || null
+  const avatarUrl = profile?.avatar_url || null
+  const score     = profile?.questions_used_today ?? 0
+  const { tier, stars } = getRank(score)
+
+  // Fallback initial for the avatar placeholder
+  const initial = codename ? codename.replace(/^Subnet/i, '')[0]?.toUpperCase() ?? 'S' : 'S'
+
   return (
-    <div className={`flex flex-col rounded-2xl border p-4 backdrop-blur-md transition sm:p-5 ${
-      highlight
-        ? 'border-purple-500/40 bg-purple-500/10 shadow-[0_0_20px_-6px_rgba(168,85,247,0.4)]'
-        : 'border-white/10 bg-white/5'
-    }`}>
-      <span className="text-xl sm:text-2xl">{icon}</span>
-      <p className={`mt-2 text-xl font-black leading-none sm:text-2xl ${
-        highlight ? 'text-purple-300' : 'text-white'
-      }`}>
-        {value}
-      </p>
-      <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-0.5 truncate text-[10px] text-slate-500">{sub}</p>
+    <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 p-5 shadow-2xl backdrop-blur-xl">
+      {/* top-edge highlight line */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-400/50 to-transparent" />
+
+      {/* main flex row: identity left | stats right */}
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+
+        {/* ── Identity (avatar + codename + badge) ── */}
+        <div className="flex items-center gap-4">
+          {/* avatar with glowing purple ring */}
+          <div className="relative shrink-0">
+            <div className="absolute -inset-[3px] rounded-full bg-gradient-to-tr from-purple-500 to-indigo-400 opacity-70 blur-sm" />
+            <div className="relative h-14 w-14 overflow-hidden rounded-full border border-white/20 bg-slate-800">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={codename ?? 'Avatar'} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xl font-bold text-slate-300">
+                  {initial}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* name + badge */}
+          <div>
+            <p className="font-mono text-lg font-bold leading-tight text-white">
+              {codename ?? (
+                <span className="text-slate-500 italic">No codename set</span>
+              )}
+            </p>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <RankBadge score={score} />
+              {isPro && (
+                <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300 ring-1 ring-amber-400/30">
+                  Pro
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Stat readouts ── */}
+        <div className="flex items-center gap-6 sm:gap-8">
+          {/* Questions */}
+          <div className="text-center sm:text-right">
+            <p className="font-mono text-2xl font-black leading-none text-indigo-300">{usedToday}</p>
+            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Questions</p>
+            <p className="text-[10px] text-slate-600">today</p>
+          </div>
+
+          <div className="h-8 w-px bg-white/10" aria-hidden="true" />
+
+          {/* Streak */}
+          <div className="text-center sm:text-right">
+            <p className={`font-mono text-2xl font-black leading-none ${streak >= 5 ? 'text-orange-400' : 'text-orange-300/70'}`}>
+              {streak}
+            </p>
+            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Streak</p>
+            <p className="text-[10px] text-slate-600">in a row</p>
+          </div>
+
+          <div className="h-8 w-px bg-white/10" aria-hidden="true" />
+
+          {/* Accuracy */}
+          <div className="text-center sm:text-right">
+            <p className={`font-mono text-2xl font-black leading-none ${
+              accuracy === null ? 'text-slate-500' : accuracy >= 80 ? 'text-emerald-400' : 'text-emerald-300/70'
+            }`}>
+              {accuracy === null ? '—' : `${accuracy}%`}
+            </p>
+            <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-slate-500">Accuracy</p>
+            <p className="text-[10px] text-slate-600">
+              {totalQuestions === 0 ? 'no data' : `${totalCorrect}/${totalQuestions}`}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── HUD footer: barcode + network status ── */}
+      <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3">
+        {/* fake barcode */}
+        <div
+          aria-hidden="true"
+          className="h-5 w-28 opacity-20"
+          style={{
+            backgroundImage:
+              'repeating-linear-gradient(90deg,#fff 0 1.5px,transparent 1.5px 3px,#fff 3px 4px,transparent 4px 6px,#fff 6px 8px,transparent 8px 10px,#fff 10px 11px,transparent 11px 14px)',
+          }}
+        />
+        {/* Network Status */}
+        <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-400/70">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+          Network Online
+        </span>
+      </div>
     </div>
   )
 }
