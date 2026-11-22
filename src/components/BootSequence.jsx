@@ -1,115 +1,107 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-
-const DURATION = 10 // seconds — must match the setTimeout in Login/Signup
+import { motion, AnimatePresence } from 'framer-motion'
 
 /**
- * Cinematic 10-second brand intro.
+ * Cinematic 10-second brand-mark intro — three sequential phases:
  *
- * Layout (all centred, full-screen):
- *   - Two expanding ripple rings around the logo
- *   - Glowing 'S' logo with breathing heartbeat on the whole stack
- *   - 'Subnet Master' wordmark
- *   - Glassmorphism progress bar / status strip counting 0 → 100%
+ *  Phase 1 (0 s)     — 'S' logo springs into the centre from nothing
+ *  Phase 2 (~0.9 s)  — 'SUBNETMASTER' text fades + slides in beside the logo
+ *  Phase 3 (~1.6 s)  — logo pulses with a bright glowing heartbeat for the rest
  *
- * The parent (Login/Signup) wraps this in <AnimatePresence> and fades it
- * out after DURATION seconds.
+ * The parent (Login / Signup) keeps this mounted for 10 s via its own
+ * setTimeout, then AnimatePresence fades it out.
  */
 export default function BootSequence() {
-  const [pct, setPct] = useState(0)
+  // Which animation phase we are in: 0 = logo only, 1 = text visible, 2 = pulsing
+  const [step, setStep] = useState(0)
 
-  // Count from 0 to 100 linearly over DURATION seconds using 60fps-ish steps.
   useEffect(() => {
-    let frame
-    const start = performance.now()
-    const ms = DURATION * 1000
-
-    function tick(now) {
-      const elapsed = Math.min(now - start, ms)
-      setPct(Math.floor((elapsed / ms) * 100))
-      if (elapsed < ms) frame = requestAnimationFrame(tick)
+    // After the spring settles, start the text slide-in
+    const t1 = setTimeout(() => setStep(1), 900)
+    // Once text has appeared, switch to the heartbeat phase
+    const t2 = setTimeout(() => setStep(2), 1600)
+    return () => {
+      clearTimeout(t1)
+      clearTimeout(t2)
     }
-
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-slate-950">
-      {/* ── ambient background orbs ── */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-32 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-purple-700/15 blur-[140px]"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-32 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-indigo-700/15 blur-[140px]"
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+      {/* Row: logo + text side by side */}
+      <div className="flex items-center gap-5">
 
-      {/* ── breathing central stack ── */}
-      <motion.div
-        className="relative flex flex-col items-center gap-5"
-        animate={{ scale: [1, 1.03, 1] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        {/* ripple ring 1 */}
-        <motion.span
-          aria-hidden="true"
-          className="absolute left-1/2 top-6 h-20 w-20 -translate-x-1/2 rounded-full border border-purple-500/60"
-          animate={{ scale: [1, 2.4], opacity: [0.6, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut' }}
-        />
-        {/* ripple ring 2 — offset by half a beat */}
-        <motion.span
-          aria-hidden="true"
-          className="absolute left-1/2 top-6 h-20 w-20 -translate-x-1/2 rounded-full border border-indigo-400/50"
-          animate={{ scale: [1, 2.4], opacity: [0.5, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeOut', delay: 0.75 }}
-        />
-
-        {/* logo */}
+        {/* ── Logo ── */}
         <motion.div
-          className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-black text-white shadow-2xl"
-          animate={{
-            boxShadow: [
-              '0 0 25px rgba(168,85,247,0.55)',
-              '0 0 55px rgba(168,85,247,1)',
-              '0 0 25px rgba(168,85,247,0.55)',
-            ],
-          }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          className="relative flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-black text-white"
+          /* Phase 1: spring pop-in */
+          initial={{ scale: 0, opacity: 0 }}
+          animate={
+            step === 2
+              ? {
+                  scale: [1, 1.08, 1],
+                  opacity: 1,
+                  boxShadow: [
+                    '0 0 30px rgba(168,85,247,0.55)',
+                    '0 0 70px rgba(168,85,247,1)',
+                    '0 0 30px rgba(168,85,247,0.55)',
+                  ],
+                }
+              : { scale: 1, opacity: 1, boxShadow: '0 0 30px rgba(168,85,247,0.55)' }
+          }
+          transition={
+            step === 0
+              ? { type: 'spring', stiffness: 260, damping: 18, mass: 0.9 }
+              : step === 2
+              ? { duration: 1.6, repeat: Infinity, ease: 'easeInOut' }
+              : { duration: 0.2 }
+          }
         >
           S
+
+          {/* ripple rings — only shown during the heartbeat phase */}
+          {step === 2 && (
+            <>
+              <motion.span
+                aria-hidden="true"
+                className="absolute inset-0 rounded-2xl border border-purple-500/70"
+                initial={{ scale: 1, opacity: 0.7 }}
+                animate={{ scale: 2, opacity: 0 }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
+              />
+              <motion.span
+                aria-hidden="true"
+                className="absolute inset-0 rounded-2xl border border-indigo-400/50"
+                initial={{ scale: 1, opacity: 0.5 }}
+                animate={{ scale: 2, opacity: 0 }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut', delay: 0.8 }}
+              />
+            </>
+          )}
         </motion.div>
 
-        {/* wordmark */}
-        <div className="text-center">
-          <p className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Subnet<span className="text-purple-400">Master</span>
-          </p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.35em] text-slate-500">
-            CCNA Subnetting Practice
-          </p>
-        </div>
-
-        {/* glassmorphism progress strip */}
-        <div className="mt-2 w-72 overflow-hidden rounded-xl border border-white/10 bg-white/5 px-5 py-3 shadow-xl backdrop-blur-xl sm:w-80">
-          {/* track */}
-          <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+        {/* ── Wordmark ── */}
+        <AnimatePresence>
+          {step >= 1 && (
             <motion.div
-              className="absolute left-0 top-0 h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          {/* label */}
-          <p className="mt-2.5 text-center font-mono text-xs text-slate-400">
-            INITIALIZING
-            <span className="text-purple-300">
-              {pct < 100 ? `... ${pct}%` : '... 100%'}
-            </span>
-          </p>
-        </div>
-      </motion.div>
+              key="wordmark"
+              initial={{ opacity: 0, x: -18 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}
+              className="flex flex-col"
+            >
+              <span className="font-mono text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
+                SUBNET
+                <span className="text-purple-400">MASTER</span>
+              </span>
+              <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.35em] text-slate-500">
+                CCNA Subnetting Practice
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+      </div>
     </div>
   )
 }
