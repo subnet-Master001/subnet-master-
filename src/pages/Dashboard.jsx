@@ -32,9 +32,7 @@ export default function Dashboard() {
   const [streak, setStreak] = useState(0)
   const [timeLeft, setTimeLeft] = useState(QUESTION_TIME)
 
-  // Session-local accuracy tracking (correct / total answered this session)
-  const [sessionCorrect, setSessionCorrect] = useState(0)
-  const [sessionTotal, setSessionTotal] = useState(0)
+  // Session-local accuracy tracking removed — now read from profile.total_correct / total_questions
 
   // Rank-up modal state
   const [rankUpData, setRankUpData] = useState(null) // { tier, stars, score } | null
@@ -46,15 +44,17 @@ export default function Dashboard() {
   const usedToday = profile?.questions_used_today ?? 0
   const atLimit = !isPro && usedToday >= DAILY_LIMIT
 
-  // Derived: accuracy percentage for the current session
-  const accuracy = sessionTotal === 0 ? null : Math.round((sessionCorrect / sessionTotal) * 100)
+  // Accuracy derived from persisted DB totals — survives page refresh
+  const totalQuestions = profile?.total_questions ?? 0
+  const totalCorrect   = profile?.total_correct   ?? 0
+  const accuracy = totalQuestions === 0 ? null : Math.round((totalCorrect / totalQuestions) * 100)
 
   async function loadProfile() {
     if (!user) { setProfileLoading(false); return }
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, email, is_pro, questions_used_today, last_active_date')
+        .select('id, email, is_pro, questions_used_today, last_active_date, total_questions, total_correct')
         .eq('id', user.id)
         .maybeSingle()
       if (!error) setProfile(data)
@@ -72,16 +72,12 @@ export default function Dashboard() {
     setSubmitted(true)
     setStreak(isCorrect ? (s) => s + 1 : 0)
 
-    // Update session accuracy counters
-    setSessionTotal((t) => t + 1)
-    if (isCorrect) setSessionCorrect((c) => c + 1)
-
     if (!user) return
-    const newCount = usedToday + 1
+    const newCount        = usedToday + 1
+    const newTotalQ       = totalQuestions + 1
+    const newTotalCorrect = totalCorrect + (isCorrect ? 1 : 0)
 
     // ── Rank-up detection ─────────────────────────────────────────────────
-    // Compare the tier before and after incrementing the score.  If they
-    // differ, the user just crossed a boundary — show the modal.
     const prevTier = getRank(usedToday).tier
     const nextRank = getRank(newCount)
     if (nextRank.tier !== prevTier) {
@@ -91,9 +87,20 @@ export default function Dashboard() {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ questions_used_today: newCount })
+      .update({
+        questions_used_today: newCount,
+        total_questions:      newTotalQ,
+        total_correct:        newTotalCorrect,
+      })
       .eq('id', user.id)
-    if (!error) setProfile((p) => (p ? { ...p, questions_used_today: newCount } : p))
+    if (!error) {
+      setProfile((p) => p ? {
+        ...p,
+        questions_used_today: newCount,
+        total_questions:      newTotalQ,
+        total_correct:        newTotalCorrect,
+      } : p)
+    }
   }
 
   async function handleSubmit(e) {
@@ -211,7 +218,7 @@ export default function Dashboard() {
               icon="🎯"
               label="Accuracy"
               value={accuracy === null ? '—' : `${accuracy}%`}
-              sub={sessionTotal === 0 ? 'this session' : `${sessionCorrect}/${sessionTotal} correct`}
+              sub={totalQuestions === 0 ? 'all time' : `${totalCorrect}/${totalQuestions} correct`}
               highlight={accuracy !== null && accuracy >= 80}
             />
           </motion.section>
