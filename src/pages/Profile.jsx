@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { toPng } from 'html-to-image'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar.jsx'
 import RankBadge from '../components/RankBadge.jsx'
@@ -21,6 +22,7 @@ export default function Profile() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
+  const cardRef = useRef(null)
 
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -33,6 +35,7 @@ export default function Profile() {
   const [message, setMessage] = useState(null)
   const [error, setError] = useState(null)
   const [usedToday, setUsedToday] = useState(0)
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -120,6 +123,30 @@ export default function Profile() {
     }
   }
 
+  async function handleDownload() {
+    if (!cardRef.current) return
+    setDownloading(true)
+    try {
+      // pixelRatio: 2 → 2× resolution for crisp social-media sharing.
+      // backgroundColor ensures no transparent pixels in the PNG even if
+      // Tailwind opacity utilities leave parts see-through in html-to-image.
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        backgroundColor: '#06061a',
+        cacheBust: true,
+      })
+      const link = document.createElement('a')
+      link.download = 'SubnetMaster-ID.png'
+      link.href = dataUrl
+      link.click()
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Download failed:', err)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950">
@@ -158,7 +185,24 @@ export default function Profile() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* ───────────── Player ID Card ───────────── */}
-          <div className="overflow-hidden rounded-2xl border border-white/20 bg-zinc-950 shadow-2xl shadow-purple-500/10">
+          <div className="flex flex-col gap-3">
+            {/* The ref wraps only the visual card so the download crops perfectly */}
+            <div
+              ref={cardRef}
+              className="overflow-hidden rounded-2xl shadow-2xl shadow-purple-500/20"
+              style={{
+                // Deep navy base — solid, no transparency so the PNG export is clean
+                background: 'linear-gradient(135deg, #06061a 0%, #0d0d2b 50%, #06061a 100%)',
+                // Metallic silver border
+                border: '1.5px solid rgba(192,192,220,0.35)',
+                // Subtle glowing grid overlay via repeating CSS gradients
+                backgroundImage: [
+                  'linear-gradient(135deg, #06061a 0%, #0d0d2b 50%, #06061a 100%)',
+                  'repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(139,92,246,0.07) 39px, rgba(139,92,246,0.07) 40px)',
+                  'repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(139,92,246,0.07) 39px, rgba(139,92,246,0.07) 40px)',
+                ].join(', '),
+              }}
+            >
 
             {/* ── header bar ── */}
             <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-5 py-3">
@@ -259,24 +303,69 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* ── barcode strip ── */}
-            <div className="flex items-center gap-4 border-t border-white/10 bg-black/60 px-5 py-3">
+            {/* ── barcode strip — metallic chip look ── */}
+            <div
+              className="flex items-center gap-4 border-t px-5 py-4"
+              style={{
+                borderColor: 'rgba(192,192,220,0.2)',
+                background: 'linear-gradient(90deg, #0a0a1f 0%, #111130 50%, #0a0a1f 100%)',
+              }}
+            >
+              {/* chip contacts */}
+              <div className="shrink-0">
+                <div
+                  className="h-9 w-7 rounded-sm"
+                  style={{
+                    background: 'linear-gradient(135deg, #b0b0c8 0%, #6c6c88 40%, #d4d4e8 60%, #8888aa 100%)',
+                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.6)',
+                  }}
+                >
+                  {/* chip circuit lines */}
+                  <div className="mt-[11px] flex flex-col items-center gap-[3px]">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="h-px w-5 rounded-full bg-black/30" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* barcode bars */}
               <div
                 aria-hidden="true"
-                className="h-7 flex-1 opacity-50"
+                className="h-7 flex-1"
                 style={{
                   backgroundImage:
-                    'repeating-linear-gradient(90deg,#fff 0 1.5px,transparent 1.5px 3px,#fff 3px 4px,transparent 4px 6.5px,#fff 6.5px 8px,transparent 8px 10px,#fff 10px 11.5px,transparent 11.5px 14px,#fff 14px 15px,transparent 15px 18px)',
+                    'repeating-linear-gradient(90deg,rgba(192,192,220,0.7) 0 1.5px,transparent 1.5px 3px,rgba(192,192,220,0.7) 3px 4px,transparent 4px 6.5px,rgba(192,192,220,0.7) 6.5px 8px,transparent 8px 10px,rgba(192,192,220,0.7) 10px 11.5px,transparent 11.5px 14px,rgba(192,192,220,0.7) 14px 15px,transparent 15px 18px)',
                 }}
               />
+              {/* serial */}
               <div className="shrink-0 text-right font-mono text-[10px] leading-relaxed">
-                <p className="text-purple-400/70">ID: {serial}</p>
-                {joinedLabel && <p className="text-zinc-600">JOINED: {joinedLabel}</p>}
-                <p className="text-zinc-700">CCNA · v1.0</p>
+                <p style={{ color: 'rgba(167,139,250,0.8)' }}>ID: {serial}</p>
+                {joinedLabel && <p style={{ color: 'rgba(192,192,220,0.4)' }}>JOINED: {joinedLabel}</p>}
+                <p style={{ color: 'rgba(192,192,220,0.3)' }}>CCNA · v1.0</p>
               </div>
             </div>
 
-          </div>
+            </div>{/* end cardRef */}
+
+            {/* ── Download button ── */}
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 py-2.5 font-semibold text-white shadow-lg shadow-purple-500/25 transition hover:from-indigo-400 hover:to-purple-500 hover:shadow-[0_0_28px_rgba(168,85,247,0.5)] focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 focus:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {downloading ? (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                // Download arrow icon
+                <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                  <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                </svg>
+              )}
+              {downloading ? 'Generating…' : 'Download ID Card'}
+            </button>
+          </div>{/* end card column wrapper */}
 
           {/* ───────────── Edit Form (right / below on mobile) ───────────── */}
           <form
