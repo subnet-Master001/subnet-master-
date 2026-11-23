@@ -157,111 +157,125 @@ export default function Profile() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* ───────────── Player ID Card (left / top on mobile) ───────────── */}
-          {/*
-            Outer card uses overflow-visible so the avatar photo can overlap
-            the top edge, just like a real ID badge photo.
-          */}
-          <div className="relative mt-10 overflow-visible">
-            <div className="relative overflow-hidden rounded-3xl border border-purple-500/40 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 shadow-2xl shadow-purple-500/25">
-              {/* ambient glows */}
-              <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-purple-600/20 blur-3xl" />
-              <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-indigo-600/20 blur-3xl" />
-              {/* top-edge highlight */}
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-400/70 to-transparent" />
+          {/* ───────────── Player ID Card ───────────── */}
+          <div className="overflow-hidden rounded-2xl border border-white/20 bg-zinc-950 shadow-2xl shadow-purple-500/10">
 
-              {/* ── header strip ── */}
-              <div className="flex items-center justify-between px-6 pt-5">
-                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-purple-300/70">
-                  SubnetMaster · Player ID
+            {/* ── header bar ── */}
+            <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-5 py-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-br from-indigo-500 to-purple-600 text-[10px] font-black text-white">
+                  S
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/20">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                  Network Online
+                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-white/80">
+                  SubnetMaster
+                </span>
+                <span className="font-mono text-[11px] text-white/30">·</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-purple-400/70">
+                  Player ID
                 </span>
               </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                Network Online
+              </span>
+            </div>
 
-              {/* ── identity row ── */}
-              {/*
-                Avatar sits 40px above the card edge via -mt-10 on its wrapper.
-                The card itself has mt-10 on the outer div to absorb the overlap.
-              */}
-              <div className="relative mt-3 flex items-start gap-5 px-6 pb-5">
+            {/* ── body grid: avatar col | details col ── */}
+            <div className="grid grid-cols-[140px_1fr] gap-4 p-5">
 
-                {/* photo — overflows upward */}
-                <div className="relative -mt-10 shrink-0">
-                  {/* thick glowing ring */}
-                  <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-400 opacity-80 blur-[4px]" />
-                  <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-400" />
-                  <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-2 border-black/40 bg-slate-800 shadow-xl">
+              {/* left col — avatar + codename */}
+              <div className="flex flex-col items-center gap-3">
+                {/* circular avatar with sharp purple glow border */}
+                <div className="relative">
+                  <div className="absolute -inset-[3px] rounded-full bg-purple-500 opacity-80 blur-[6px]" />
+                  <div className="absolute -inset-[3px] rounded-full ring-2 ring-purple-500" />
+                  <div className="relative h-[132px] w-[132px] overflow-hidden rounded-full bg-zinc-800">
                     {displayAvatar ? (
                       <img src={displayAvatar} alt="Avatar" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-400">
+                      <div className="flex h-full w-full items-center justify-center text-4xl font-black text-zinc-500">
                         {codename ? codename[0].toUpperCase() : 'S'}
                       </div>
                     )}
                   </div>
                 </div>
-
-                {/* name + rank */}
-                <div className="min-w-0 flex-1 pt-1">
-                  <p className="font-mono text-xl font-black leading-tight tracking-tight text-white sm:text-2xl">
-                    Subnet
-                    <span className={codename ? 'text-purple-300' : 'text-white/25'}>
-                      {codename || 'codename'}
-                    </span>
+                {/* codename under avatar */}
+                <div className="text-center">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    Operator
                   </p>
-                  <div className="mt-2">
-                    <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-500">
-                      Clearance Level
-                    </p>
-                    {/* inline-flex wraps tightly around badge text */}
-                    <span className="inline-flex">
-                      <RankBadge score={usedToday} />
-                    </span>
-                  </div>
+                  <p className="mt-0.5 break-all font-mono text-sm font-black leading-tight text-white">
+                    Subnet<span className="text-purple-400">{codename || '???'}</span>
+                  </p>
                 </div>
               </div>
 
-              {/* ── data-chip grid ── */}
-              <div className="grid grid-cols-2 gap-2 px-6 pb-5">
-                <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5">
-                  <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-purple-400/60">School</p>
-                  <p className={`mt-0.5 text-sm font-medium leading-snug ${school ? 'text-slate-100' : 'text-slate-500'}`}>
+              {/* right col — details box */}
+              <div className="flex flex-col gap-2.5 rounded-lg border border-white/10 bg-white/5 p-4">
+
+                {/* clearance level */}
+                <div>
+                  <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    Clearance Level
+                  </p>
+                  <span className="inline-flex">
+                    <RankBadge score={usedToday} />
+                  </span>
+                </div>
+
+                <div className="border-t border-white/5" />
+
+                {/* school */}
+                <div>
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    School
+                  </p>
+                  <p className={`mt-0.5 text-sm font-medium ${school ? 'text-white' : 'text-zinc-600'}`}>
                     {school || '—'}
                   </p>
                 </div>
-                <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5">
-                  <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-purple-400/60">Course</p>
-                  <p className={`mt-0.5 text-sm font-medium leading-snug ${course ? 'text-slate-100' : 'text-slate-500'}`}>
+
+                {/* course */}
+                <div>
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    Course
+                  </p>
+                  <p className={`mt-0.5 text-sm font-medium ${course ? 'text-white' : 'text-zinc-600'}`}>
                     {course || '—'}
                   </p>
                 </div>
+
+                {/* joined */}
                 {joinedLabel && (
-                  <div className="col-span-2 rounded-xl border border-white/5 bg-black/20 px-3 py-2.5">
-                    <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-purple-400/60">Member Since</p>
-                    <p className="mt-0.5 font-mono text-sm font-medium text-slate-100">{joinedLabel}</p>
+                  <div>
+                    <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                      Member Since
+                    </p>
+                    <p className="mt-0.5 font-mono text-sm font-semibold text-white">
+                      {joinedLabel}
+                    </p>
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* ── barcode strip ── */}
-              <div className="flex items-center gap-4 rounded-b-3xl bg-black/40 px-6 py-3 backdrop-blur-sm">
-                <div
-                  aria-hidden="true"
-                  className="h-8 flex-1 opacity-60"
-                  style={{
-                    backgroundImage:
-                      'repeating-linear-gradient(90deg,rgba(255,255,255,0.9) 0 2px,transparent 2px 4px,rgba(255,255,255,0.9) 4px 5px,transparent 5px 8px,rgba(255,255,255,0.9) 8px 11px,transparent 11px 13px,rgba(255,255,255,0.9) 13px 14px,transparent 14px 17px)',
-                  }}
-                />
-                <div className="shrink-0 text-right font-mono text-[10px] text-slate-500">
-                  <p className="text-purple-300/50">ID: {serial}</p>
-                  <p className="mt-0.5 text-slate-600">CCNA · v1.0</p>
-                </div>
+            {/* ── barcode strip ── */}
+            <div className="flex items-center gap-4 border-t border-white/10 bg-black/60 px-5 py-3">
+              <div
+                aria-hidden="true"
+                className="h-7 flex-1 opacity-50"
+                style={{
+                  backgroundImage:
+                    'repeating-linear-gradient(90deg,#fff 0 1.5px,transparent 1.5px 3px,#fff 3px 4px,transparent 4px 6.5px,#fff 6.5px 8px,transparent 8px 10px,#fff 10px 11.5px,transparent 11.5px 14px,#fff 14px 15px,transparent 15px 18px)',
+                }}
+              />
+              <div className="shrink-0 text-right font-mono text-[10px] leading-relaxed">
+                <p className="text-purple-400/70">ID: {serial}</p>
+                {joinedLabel && <p className="text-zinc-600">JOINED: {joinedLabel}</p>}
+                <p className="text-zinc-700">CCNA · v1.0</p>
               </div>
             </div>
+
           </div>
 
           {/* ───────────── Edit Form (right / below on mobile) ───────────── */}
