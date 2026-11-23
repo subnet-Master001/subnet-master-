@@ -189,39 +189,29 @@ export default function Profile() {
             {/* The ref wraps only the visual card so the download crops perfectly */}
             <div
               ref={cardRef}
-              className="overflow-hidden rounded-2xl shadow-2xl shadow-purple-500/20"
-              style={{
-                // Deep navy base — solid, no transparency so the PNG export is clean
-                background: 'linear-gradient(135deg, #06061a 0%, #0d0d2b 50%, #06061a 100%)',
-                // Metallic silver border
-                border: '1.5px solid rgba(192,192,220,0.35)',
-                // Subtle glowing grid overlay via repeating CSS gradients
-                backgroundImage: [
-                  'linear-gradient(135deg, #06061a 0%, #0d0d2b 50%, #06061a 100%)',
-                  'repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(139,92,246,0.07) 39px, rgba(139,92,246,0.07) 40px)',
-                  'repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(139,92,246,0.07) 39px, rgba(139,92,246,0.07) 40px)',
-                ].join(', '),
-              }}
+              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
             >
 
-            {/* ── header bar ── */}
-            <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-5 py-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded bg-gradient-to-br from-indigo-500 to-purple-600 text-[10px] font-black text-white">
-                  S
-                </span>
-                <span className="font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-white/80">
-                  SubnetMaster
-                </span>
-                <span className="font-mono text-[11px] text-white/30">·</span>
-                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-purple-400/70">
-                  Player ID
+            {/* ── top blue band ── */}
+            <div className="bg-gradient-to-r from-blue-700 to-indigo-800 px-5 py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded bg-white/20 text-[10px] font-black text-white">
+                    S
+                  </span>
+                  <span className="font-mono text-[11px] font-bold uppercase tracking-[0.25em] text-white">
+                    SubnetMaster
+                  </span>
+                  <span className="font-mono text-[11px] text-white/40">·</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-blue-200">
+                    Player ID
+                  </span>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-300">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                  Network Online
                 </span>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                Network Online
-              </span>
             </div>
 
             {/* ── body grid: avatar col | details col ── */}
@@ -229,15 +219,15 @@ export default function Profile() {
 
               {/* left col — avatar + codename */}
               <div className="flex flex-col items-center gap-3">
-                {/* circular avatar with sharp purple glow border */}
+                {/* circular avatar — keep the purple glow for the gaming feel */}
                 <div className="relative">
-                  <div className="absolute -inset-[3px] rounded-full bg-purple-500 opacity-80 blur-[6px]" />
+                  <div className="absolute -inset-[3px] rounded-full bg-purple-500 opacity-70 blur-[6px]" />
                   <div className="absolute -inset-[3px] rounded-full ring-2 ring-purple-500" />
-                  <div className="relative h-[132px] w-[132px] overflow-hidden rounded-full bg-zinc-800">
+                  <div className="relative h-[132px] w-[132px] overflow-hidden rounded-full bg-slate-100">
                     {displayAvatar ? (
                       <img src={displayAvatar} alt="Avatar" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-4xl font-black text-zinc-500">
+                      <div className="flex h-full w-full items-center justify-center text-4xl font-black text-slate-400">
                         {codename ? codename[0].toUpperCase() : 'S'}
                       </div>
                     )}
@@ -245,21 +235,21 @@ export default function Profile() {
                 </div>
                 {/* codename under avatar */}
                 <div className="text-center">
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                     Operator
                   </p>
-                  <p className="mt-0.5 break-all font-mono text-sm font-black leading-tight text-white">
-                    Subnet<span className="text-purple-400">{codename || '???'}</span>
+                  <p className="mt-0.5 break-all font-mono text-sm font-black leading-tight text-slate-900">
+                    Subnet<span className="text-indigo-600">{codename || '???'}</span>
                   </p>
                 </div>
               </div>
 
               {/* right col — details box */}
-              <div className="flex flex-col gap-2.5 rounded-lg border border-white/10 bg-white/5 p-4">
+              <div className="flex flex-col gap-2.5 rounded-lg border border-slate-200 bg-slate-50 p-4">
 
                 {/* clearance level */}
                 <div>
-                  <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                  <p className="mb-1.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                     Clearance Level
                   </p>
                   <span className="inline-flex">
@@ -267,24 +257,24 @@ export default function Profile() {
                   </span>
                 </div>
 
-                <div className="border-t border-white/5" />
+                <div className="border-t border-slate-200" />
 
                 {/* school */}
                 <div>
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                     School
                   </p>
-                  <p className={`mt-0.5 text-sm font-medium ${school ? 'text-white' : 'text-zinc-600'}`}>
+                  <p className={`mt-0.5 text-sm font-medium ${school ? 'text-slate-900' : 'text-slate-300'}`}>
                     {school || '—'}
                   </p>
                 </div>
 
                 {/* course */}
                 <div>
-                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                  <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                     Course
                   </p>
-                  <p className={`mt-0.5 text-sm font-medium ${course ? 'text-white' : 'text-zinc-600'}`}>
+                  <p className={`mt-0.5 text-sm font-medium ${course ? 'text-slate-900' : 'text-slate-300'}`}>
                     {course || '—'}
                   </p>
                 </div>
@@ -292,10 +282,10 @@ export default function Profile() {
                 {/* joined */}
                 {joinedLabel && (
                   <div>
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-zinc-500">
+                    <p className="font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                       Member Since
                     </p>
-                    <p className="mt-0.5 font-mono text-sm font-semibold text-white">
+                    <p className="mt-0.5 font-mono text-sm font-semibold text-slate-900">
                       {joinedLabel}
                     </p>
                   </div>
@@ -303,45 +293,40 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* ── barcode strip — metallic chip look ── */}
-            <div
-              className="flex items-center gap-4 border-t px-5 py-4"
-              style={{
-                borderColor: 'rgba(192,192,220,0.2)',
-                background: 'linear-gradient(90deg, #0a0a1f 0%, #111130 50%, #0a0a1f 100%)',
-              }}
-            >
-              {/* chip contacts */}
-              <div className="shrink-0">
-                <div
-                  className="h-9 w-7 rounded-sm"
-                  style={{
-                    background: 'linear-gradient(135deg, #b0b0c8 0%, #6c6c88 40%, #d4d4e8 60%, #8888aa 100%)',
-                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.3), 0 1px 4px rgba(0,0,0,0.6)',
-                  }}
-                >
-                  {/* chip circuit lines */}
-                  <div className="mt-[11px] flex flex-col items-center gap-[3px]">
-                    {[...Array(3)].map((_, i) => (
-                      <div key={i} className="h-px w-5 rounded-full bg-black/30" />
-                    ))}
+            {/* ── bottom blue band with barcode ── */}
+            <div className="bg-gradient-to-r from-blue-700 to-indigo-800 px-5 py-3">
+              <div className="flex items-center gap-4">
+                {/* chip contacts */}
+                <div className="shrink-0">
+                  <div
+                    className="h-9 w-7 rounded-sm"
+                    style={{
+                      background: 'linear-gradient(135deg, #e2e8f0 0%, #94a3b8 40%, #f1f5f9 60%, #cbd5e1 100%)',
+                      boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.6), 0 1px 3px rgba(0,0,0,0.4)',
+                    }}
+                  >
+                    <div className="mt-[11px] flex flex-col items-center gap-[3px]">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="h-px w-5 rounded-full bg-slate-500/40" />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* barcode bars */}
-              <div
-                aria-hidden="true"
-                className="h-7 flex-1"
-                style={{
-                  backgroundImage:
-                    'repeating-linear-gradient(90deg,rgba(192,192,220,0.7) 0 1.5px,transparent 1.5px 3px,rgba(192,192,220,0.7) 3px 4px,transparent 4px 6.5px,rgba(192,192,220,0.7) 6.5px 8px,transparent 8px 10px,rgba(192,192,220,0.7) 10px 11.5px,transparent 11.5px 14px,rgba(192,192,220,0.7) 14px 15px,transparent 15px 18px)',
-                }}
-              />
-              {/* serial */}
-              <div className="shrink-0 text-right font-mono text-[10px] leading-relaxed">
-                <p style={{ color: 'rgba(167,139,250,0.8)' }}>ID: {serial}</p>
-                {joinedLabel && <p style={{ color: 'rgba(192,192,220,0.4)' }}>JOINED: {joinedLabel}</p>}
-                <p style={{ color: 'rgba(192,192,220,0.3)' }}>CCNA · v1.0</p>
+                {/* barcode — white bars on blue band */}
+                <div
+                  aria-hidden="true"
+                  className="h-7 flex-1"
+                  style={{
+                    backgroundImage:
+                      'repeating-linear-gradient(90deg,rgba(255,255,255,0.9) 0 1.5px,transparent 1.5px 3px,rgba(255,255,255,0.9) 3px 4px,transparent 4px 6.5px,rgba(255,255,255,0.9) 6.5px 8px,transparent 8px 10px,rgba(255,255,255,0.9) 10px 11.5px,transparent 11.5px 14px,rgba(255,255,255,0.9) 14px 15px,transparent 15px 18px)',
+                  }}
+                />
+                {/* serial */}
+                <div className="shrink-0 text-right font-mono text-[10px] leading-relaxed">
+                  <p className="text-white/90">ID: {serial}</p>
+                  {joinedLabel && <p className="text-blue-200/70">JOINED: {joinedLabel}</p>}
+                  <p className="text-blue-200/50">CCNA · v1.0</p>
+                </div>
               </div>
             </div>
 
