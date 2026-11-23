@@ -158,17 +158,21 @@ export default function Profile() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* ───────────── Player ID Card (left / top on mobile) ───────────── */}
-          <div className="relative overflow-hidden rounded-3xl border border-purple-500/30 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 p-6 shadow-2xl shadow-purple-500/20">
-            {/* glow accents */}
-            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-purple-500/20 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-indigo-500/20 blur-3xl" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-400/60 to-transparent" />
+          {/*
+            Outer card uses overflow-visible so the avatar photo can overlap
+            the top edge, just like a real ID badge photo.
+          */}
+          <div className="relative mt-10 overflow-visible">
+            <div className="relative overflow-hidden rounded-3xl border border-purple-500/40 bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 shadow-2xl shadow-purple-500/25">
+              {/* ambient glows */}
+              <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-purple-600/20 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-indigo-600/20 blur-3xl" />
+              {/* top-edge highlight */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-400/70 to-transparent" />
 
-            <div className="relative flex flex-col gap-5">
-
-              {/* ── card header row ── */}
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.25em] text-purple-300/80">
+              {/* ── header strip ── */}
+              <div className="flex items-center justify-between px-6 pt-5">
+                <span className="font-mono text-[10px] font-bold uppercase tracking-[0.3em] text-purple-300/70">
                   SubnetMaster · Player ID
                 </span>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-emerald-300 ring-1 ring-emerald-400/20">
@@ -177,88 +181,86 @@ export default function Profile() {
                 </span>
               </div>
 
-              {/* ── horizontal identity row: avatar left | details right ── */}
-              <div className="flex items-start gap-5">
+              {/* ── identity row ── */}
+              {/*
+                Avatar sits 40px above the card edge via -mt-10 on its wrapper.
+                The card itself has mt-10 on the outer div to absorb the overlap.
+              */}
+              <div className="relative mt-3 flex items-start gap-5 px-6 pb-5">
 
-                {/* avatar */}
-                <div className="relative shrink-0">
-                  <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-400 opacity-60 blur-md" />
-                  <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-white/20 bg-slate-800 shadow-lg">
+                {/* photo — overflows upward */}
+                <div className="relative -mt-10 shrink-0">
+                  {/* thick glowing ring */}
+                  <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-400 opacity-80 blur-[4px]" />
+                  <div className="absolute -inset-[3px] rounded-2xl bg-gradient-to-tr from-purple-500 to-indigo-400" />
+                  <div className="relative h-24 w-24 overflow-hidden rounded-2xl border-2 border-black/40 bg-slate-800 shadow-xl">
                     {displayAvatar ? (
                       <img src={displayAvatar} alt="Avatar" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-400">
+                      <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-400">
                         {codename ? codename[0].toUpperCase() : 'S'}
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* details column */}
-                <div className="min-w-0 flex-1">
-                  {/* codename */}
-                  <p className="font-mono text-xl font-bold leading-tight tracking-tight text-white">
+                {/* name + rank */}
+                <div className="min-w-0 flex-1 pt-1">
+                  <p className="font-mono text-xl font-black leading-tight tracking-tight text-white sm:text-2xl">
                     Subnet
-                    <span className={codename ? 'text-white' : 'text-white/30'}>
+                    <span className={codename ? 'text-purple-300' : 'text-white/25'}>
                       {codename || 'codename'}
                     </span>
                   </p>
-
-                  {/* clearance level */}
-                  <div className="mt-2 flex flex-col gap-0.5">
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-purple-300/60">
+                  <div className="mt-2">
+                    <p className="mb-1 font-mono text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-500">
                       Clearance Level
                     </p>
-                    <RankBadge score={usedToday} />
-                  </div>
-
-                  {/* school / course / joined — stack neatly, no truncation */}
-                  <div className="mt-3 space-y-1.5">
-                    <div>
-                      <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-purple-300/60">
-                        School
-                      </p>
-                      <p className={`text-sm leading-snug ${school ? 'text-slate-100' : 'text-slate-500'}`}>
-                        {school || 'Not set'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-purple-300/60">
-                        Course
-                      </p>
-                      <p className={`text-sm leading-snug ${course ? 'text-slate-100' : 'text-slate-500'}`}>
-                        {course || 'Not set'}
-                      </p>
-                    </div>
-                    {joinedLabel && (
-                      <div>
-                        <p className="font-mono text-[10px] font-semibold uppercase tracking-wider text-purple-300/60">
-                          Member Since
-                        </p>
-                        <p className="font-mono text-sm text-slate-100">{joinedLabel}</p>
-                      </div>
-                    )}
+                    {/* inline-flex wraps tightly around badge text */}
+                    <span className="inline-flex">
+                      <RankBadge score={usedToday} />
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* ── barcode + footer — full width ── */}
-              <div className="border-t border-white/10 pt-4">
+              {/* ── data-chip grid ── */}
+              <div className="grid grid-cols-2 gap-2 px-6 pb-5">
+                <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5">
+                  <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-purple-400/60">School</p>
+                  <p className={`mt-0.5 text-sm font-medium leading-snug ${school ? 'text-slate-100' : 'text-slate-500'}`}>
+                    {school || '—'}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-white/5 bg-black/20 px-3 py-2.5">
+                  <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-purple-400/60">Course</p>
+                  <p className={`mt-0.5 text-sm font-medium leading-snug ${course ? 'text-slate-100' : 'text-slate-500'}`}>
+                    {course || '—'}
+                  </p>
+                </div>
+                {joinedLabel && (
+                  <div className="col-span-2 rounded-xl border border-white/5 bg-black/20 px-3 py-2.5">
+                    <p className="font-mono text-[9px] font-bold uppercase tracking-widest text-purple-400/60">Member Since</p>
+                    <p className="mt-0.5 font-mono text-sm font-medium text-slate-100">{joinedLabel}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* ── barcode strip ── */}
+              <div className="flex items-center gap-4 rounded-b-3xl bg-black/40 px-6 py-3 backdrop-blur-sm">
                 <div
                   aria-hidden="true"
-                  className="h-8 w-full opacity-70"
+                  className="h-8 flex-1 opacity-60"
                   style={{
                     backgroundImage:
-                      'repeating-linear-gradient(90deg,rgba(255,255,255,0.85) 0 2px,transparent 2px 4px,rgba(255,255,255,0.85) 4px 5px,transparent 5px 8px,rgba(255,255,255,0.85) 8px 11px,transparent 11px 13px,rgba(255,255,255,0.85) 13px 14px,transparent 14px 17px)',
+                      'repeating-linear-gradient(90deg,rgba(255,255,255,0.9) 0 2px,transparent 2px 4px,rgba(255,255,255,0.9) 4px 5px,transparent 5px 8px,rgba(255,255,255,0.9) 8px 11px,transparent 11px 13px,rgba(255,255,255,0.9) 13px 14px,transparent 14px 17px)',
                   }}
                 />
-                <div className="mt-1.5 grid grid-cols-3 items-center font-mono text-[10px] text-slate-500">
-                  <span>ID: {serial}</span>
-                  <span className="text-center text-purple-300/40">CCNA · v1.0</span>
-                  <span className="text-right">{joinedLabel ? `JOINED: ${joinedLabel}` : ''}</span>
+                <div className="shrink-0 text-right font-mono text-[10px] text-slate-500">
+                  <p className="text-purple-300/50">ID: {serial}</p>
+                  <p className="mt-0.5 text-slate-600">CCNA · v1.0</p>
                 </div>
               </div>
-
             </div>
           </div>
 
@@ -312,7 +314,7 @@ export default function Profile() {
                   onChange={(e) => setCodename(e.target.value)}
                   placeholder="wizard"
                   maxLength={24}
-                  className="w-full rounded-r-lg border border-white/10 bg-black/40 px-3 py-2 font-mono text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50"
+                  className="w-full rounded-r-lg border border-white/10 bg-black px-3 py-2 font-mono text-emerald-400 placeholder:text-slate-600 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50"
                 />
               </div>
             </div>
@@ -324,7 +326,7 @@ export default function Profile() {
                 value={school}
                 onChange={(e) => setSchool(e.target.value)}
                 placeholder="e.g. Lagos State University"
-                className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50"
+                className="w-full rounded-lg border border-white/10 bg-black px-3 py-2 font-mono text-emerald-400 placeholder:text-slate-600 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50"
               />
             </div>
 
@@ -335,7 +337,7 @@ export default function Profile() {
                 value={course}
                 onChange={(e) => setCourse(e.target.value)}
                 placeholder="e.g. Computer Science"
-                className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-white placeholder:text-slate-500 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50"
+                className="w-full rounded-lg border border-white/10 bg-black px-3 py-2 font-mono text-emerald-400 placeholder:text-slate-600 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50"
               />
             </div>
 
